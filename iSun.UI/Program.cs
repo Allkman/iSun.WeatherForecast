@@ -66,8 +66,10 @@ if (tokenResponse != null)
         }
     }, cancellationTokenSource.Token);
 
-    Console.WriteLine("Press any key to stop the task...");
+    Console.WriteLine("Press any key to stop requesting for weather data...");
     Console.ReadKey();
+    Console.WriteLine();
+    Console.WriteLine("The request for weather data was stopped.");
     cancellationTokenSource.Cancel();
 
     await task;

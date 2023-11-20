@@ -6,11 +6,18 @@ using iSun.WeatherForecast.SharedKernel.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using System.Diagnostics;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
+builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
+{
+    loggerConfiguration
+        .Enrich.FromLogContext()
+        .WriteTo.Console()
+        .WriteTo.File("logs/isun-weather-logs.txt", rollingInterval: RollingInterval.Hour); // Log to a file hourly
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -26,7 +33,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-ILogger logger = app.Services.GetService<ILogger<Program>>();
+Microsoft.Extensions.Logging.ILogger logger = app.Services.GetService<ILogger<Program>>();
 app.UseExceptionHandler(appError =>
 {
     appError.Run(async context =>
@@ -43,15 +50,27 @@ app.UseExceptionHandler(appError =>
 
             if (contextFeature.Error is BadRequestException  || contextFeature.Error is NotFoundException)
             {
-                context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                problemDetails.Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1";
-                problemDetails.Title = contextFeature.Error.Message;
+                var badRequest = context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                if (badRequest == (int)HttpStatusCode.BadRequest)
+                {
+                    problemDetails.Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1";
+                    problemDetails.Title = contextFeature.Error.Message;
+                    logger.LogError(contextFeature.Error, $"Bad request {badRequest}. TraceId: {traceId}");
+                }
+                else
+                {
+                    problemDetails.Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.1";
+                    problemDetails.Title = contextFeature.Error.Message;
+                    logger.LogError(contextFeature.Error, $"Not found. TraceId: {traceId}");
+                }
             }
             else
             {
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 problemDetails.Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.1";
                 problemDetails.Title = iSunResources.GenericUnhandledExceptionMessage;
+
+                logger.LogError(contextFeature.Error, $"Internal server error. TraceId: {traceId}");
             }
             problemDetails.Status = context.Response.StatusCode;
 
