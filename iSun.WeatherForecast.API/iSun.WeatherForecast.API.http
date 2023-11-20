@@ -1,0 +1,6 @@
+@iSun.WeatherForecast.API_HostAddress = http://localhost:5044
+
+GET {{iSun.WeatherForecast.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

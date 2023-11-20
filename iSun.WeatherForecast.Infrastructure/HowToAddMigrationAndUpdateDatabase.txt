@@ -1,0 +1,4 @@
+﻿Add-migration [MigrationName] -Context ApplicationDbContext -StartupProject iSun.WeatherForecast.API  -Project iSun.WeatherForecast.Infrastructure
+
+Update-database -Context ApplicationDbContext -StartupProject  iSun.WeatherForecast.API  -Project iSun.WeatherForecast.Infrastructure
+
