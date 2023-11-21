@@ -23,11 +23,10 @@ namespace iSun.WeatherForecast.API
                 loggerConfiguration
                     .Enrich.FromLogContext()
                     .WriteTo.Console()
-                    .WriteTo.File("logs/isun-weather-logs.txt", rollingInterval: RollingInterval.Hour); // Log to a file hourly
+                    .WriteTo.File("logs/isun-weather-logs.txt", rollingInterval: RollingInterval.Hour);
             });
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                            options.UseSqlServer(builder.Configuration.GetConnectionString("ApplicationDbContext")));
@@ -91,7 +90,6 @@ namespace iSun.WeatherForecast.API
 
             app.UseStatusCodePages();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();

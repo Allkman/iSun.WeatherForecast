@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
 
+const int TimeInterval = 15;
+
 var tokenResponse = await LoginAsync("isun", "passwrod");
 var citiesResponse = await GetCities(tokenResponse.Data.Token);
 Console.WriteLine("Cities from API");
@@ -34,7 +36,7 @@ static List<string> SplitStringInput(string input)
     return cities;
 }
 
-if (tokenResponse != null)
+if (tokenResponse.Data != null)
 {
     var cancellationTokenSource = new CancellationTokenSource();
 
@@ -62,7 +64,7 @@ if (tokenResponse != null)
                 }
             }
 
-            await Task.Delay(TimeSpan.FromSeconds(15));
+            await Task.Delay(TimeSpan.FromSeconds(TimeInterval));
         }
     }, cancellationTokenSource.Token);
 
@@ -107,7 +109,7 @@ async Task<Result<TokenResponse>> LoginAsync(string username, string password)
             }
             else
             {
-                result.ErrorMessage = "Login failed."; //maybe more ErrorMassage types to log different cases why failed
+                result.ErrorMessage = "Login failed.";
             }
         }
     }
@@ -129,6 +131,7 @@ async Task<ICollection<string>> GetCities(string token)
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         HttpResponseMessage response = await client.GetAsync($"{apiUrl}");
         response.EnsureSuccessStatusCode();
+
         if (response.Content != null)
         {
             return JsonConvert.DeserializeObject<List<string>>(await response.Content.ReadAsStringAsync());
@@ -149,7 +152,7 @@ async Task<WeatherViewModel> GetWeatherDataAsync(string city, string token)
         {
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             HttpResponseMessage response = await client.GetAsync($"{apiUrl}/{city}");
-            response.EnsureSuccessStatusCode();
+            response.EnsureSuccessStatusCode(); //here it throws exception if false
 
             return JsonConvert.DeserializeObject<WeatherViewModel>(await response.Content.ReadAsStringAsync());
         }

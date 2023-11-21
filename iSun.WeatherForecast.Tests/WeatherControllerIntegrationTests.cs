@@ -1,7 +1,9 @@
 ﻿using iSun.WeatherForecast.API;
 using iSun.WeatherForecast.SharedKernel.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 
