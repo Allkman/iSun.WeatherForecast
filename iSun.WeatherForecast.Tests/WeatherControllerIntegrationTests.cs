@@ -1,7 +1,8 @@
-﻿using iSun.WeatherForecast.SharedKernel.Models;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
+﻿using iSun.WeatherForecast.API;
+using iSun.WeatherForecast.SharedKernel.Models;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 
 namespace iSun.WeatherForecast.Tests
@@ -16,9 +17,10 @@ namespace iSun.WeatherForecast.Tests
         }
 
         [Fact]
-        public async Task PostWeatherData_WithGoodData()
+        public async Task LoginToApi_WithGoodCredentials()
         {
             var httpClient = _applicationFactory.CreateClient();
+
             var loginData = new
             {
                 username = "isun",
@@ -26,10 +28,16 @@ namespace iSun.WeatherForecast.Tests
             };
             string loginJsonData = JsonConvert.SerializeObject(loginData);
             var loginContent = new StringContent(loginJsonData, Encoding.UTF8, "application/json");
-            var loginReponse = await httpClient.PostAsync(ApiEndpoints.authUserApiUrl, loginContent);
+            HttpResponseMessage loginResponse = await httpClient.PostAsJsonAsync(ApiEndpoints.authUserApiUrl, loginContent);
 
-            Assert.NotNull(loginReponse);
-            Assert.True(loginReponse.StatusCode == HttpStatusCode.OK);
+            Assert.NotNull(loginResponse);
+            Assert.True(loginResponse.StatusCode == HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task PostWeatherData_WithGoodData()
+        {
+            var httpClient = _applicationFactory.CreateClient();
 
             var weatherData = new WeatherModel()
             {
@@ -41,7 +49,7 @@ namespace iSun.WeatherForecast.Tests
                 Summary = "Warm"
             };
 
-            string jsonData = JsonConvert.SerializeObject(loginData);
+            string jsonData = JsonConvert.SerializeObject(weatherData);
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             var weatherDataResponse = await httpClient.PostAsync(ApiEndpoints.getWeatherData, content);
@@ -54,17 +62,6 @@ namespace iSun.WeatherForecast.Tests
         public async Task PostWeatherData_WithBadData()
         {
             var httpClient = _applicationFactory.CreateClient();
-            var loginData = new
-            {
-                username = "isun",
-                password = "passwrod"
-            };
-            string loginJsonData = JsonConvert.SerializeObject(loginData);
-            var loginContent = new StringContent(loginJsonData, Encoding.UTF8, "application/json");
-            var loginReponse = await httpClient.PostAsync(ApiEndpoints.authUserApiUrl, loginContent);
-
-            Assert.NotNull(loginReponse);
-            Assert.True(loginReponse.StatusCode == HttpStatusCode.OK);
 
             var weatherData = new WeatherModel()
             {
@@ -76,13 +73,23 @@ namespace iSun.WeatherForecast.Tests
                 Summary = null,
             };
 
-            string jsonData = JsonConvert.SerializeObject(loginData);
+            string jsonData = JsonConvert.SerializeObject(weatherData);
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             var weatherDataResponse = await httpClient.PostAsync(ApiEndpoints.getWeatherData, content);
 
             Assert.NotNull(weatherDataResponse);
             Assert.True(weatherDataResponse.StatusCode == HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task GetCities_WithoutAuth()
+        {
+            var httpClient = _applicationFactory.CreateClient();
+
+            var response = await httpClient.GetAsync("https://weather-api.isun.ch/api/cities'");
+            Assert.NotNull(response);
+            Assert.True(response.StatusCode == HttpStatusCode.OK);
         }
     }
 }

@@ -13,9 +13,7 @@ namespace iSun.WeatherForecast.Tests
         {
             builder.ConfigureServices(services =>
             {
-
                 services.AddScoped<IWeatherDataApplicationService, WeatherDataApplicationService>();
-
             });
 
             builder.UseEnvironment("Development");
