@@ -6,14 +6,14 @@ namespace iSun.WeatherForecast.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class WeathersController : ControllerBase
+    public class WeatherController : ControllerBase
     {
         private readonly IWeatherDataApplicationService _service;
 
 
-        private readonly ILogger<WeathersController> _logger;
+        private readonly ILogger<WeatherController> _logger;
 
-        public WeathersController(IWeatherDataApplicationService service, ILogger<WeathersController> logger)
+        public WeatherController(IWeatherDataApplicationService service, ILogger<WeatherController> logger)
         {
             _service = service;
             _logger = logger;
