@@ -171,7 +171,7 @@ async Task<WeatherViewModel> GetWeatherDataAsync(string city, string token)
 
 async Task PostAsync(WeatherViewModel model)
 {
-    var url = "https://localhost:7278/api/Weathers";
+    var url = "https://localhost:7278/api/Weather";
 
     using (HttpClient client = new HttpClient())
     {
